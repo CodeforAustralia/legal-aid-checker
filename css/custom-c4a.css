@@ -1,0 +1,99 @@
+div.result-info h2.result-title {
+    font-weight: bold;
+}
+#footer .footer-meta{
+    padding: 0;
+}
+
+#footer .footer-meta .copyright a{
+    padding: 35px 0 0 0;
+    background-size: 50px 30px;
+    font-size: 7px;
+}
+#footer .footer-meta .footer-meta-inner{
+    float: left;
+}
+.top-bar {
+    display: none;
+}
+
+#wrapper{
+    border-bottom: 0px;
+}
+
+.button{
+    background-color: #7d7d7d;    
+    -webkit-box-shadow: 0 2px 0 #333;
+    -moz-box-shadow: 0 2px 0 #333;
+    box-shadow: 0 2px 0 #333;
+}
+
+.button#next{
+    background-color: #7d7d7d;    
+    -webkit-box-shadow: 0 2px 0 #333;
+    -moz-box-shadow: 0 2px 0 #333;
+    box-shadow: 0 2px 0 #333;
+    font-size: 19px;
+    line-height: 1.36842;
+    margin-left: 0px;
+    padding: 0.3em 0.6em 0.2em 0.6em;
+}
+
+.button:hover{
+    background-color: #a1acb2;
+}
+
+.vla , .c4a, .crown-logo{
+    float: left;
+    padding-right: 10px;
+}
+
+.vla img{
+    width: 70px;
+}
+.c4a img{
+    width: 70px;
+}
+.crown-logo img{
+    width: 27px;
+}
+
+#global-header .header-proposition #proposition-name small.beta {
+    background-color: #980747;
+}
+
+a:focus {
+    background-color: #bf7194;
+    outline: 3px solid #bf7194;
+}
+
+@media screen and (max-width: 320px) {
+    .article-container {
+        width: 320px;
+    }
+}
+
+@media screen and (max-width: 414px) {
+    .article-container {
+        width: 414px;
+    }
+}
+
+@media (max-width: 640px) {
+    .find-location-for-service, .find-location-for-licence {
+        padding-left: 3.4em;
+    }
+}
+
+
+@media screen and (max-width: 720px){
+    .article-container {
+        width: 720px;
+    }
+}
+
+@media screen and (min-width: 1024px){
+    .article-container {
+        width: 1024px;
+    }
+}

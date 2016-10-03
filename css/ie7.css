@@ -1,0 +1,7 @@
+@charset "utf-8";
+/* CSS Document */
+
+#global-header .header-wrapper .organisation-logo span {padding-top:50px;}
+header.page-header hgroup, .service#wrapper header.page-header hgroup, .smart_answer#wrapper header.page-header hgroup h1 {padding-left:0!important;}
+.smart_answer#wrapper header.page-header hgroup h1 {margin-left:30px;}
+
