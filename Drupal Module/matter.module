@@ -1,0 +1,341 @@
+<?php
+/**
+ * @file
+ * Code for the matter feature.
+ */
+
+include_once 'matter.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function matter_menu() {
+  //Main page
+  $items['matter/checker'] = array(
+    'title' => 'Legal Aid Checker',
+    'page callback' => 'matter_page',
+    'delivery callback' => 'matter_deliver',
+    'access callback' => TRUE,
+  );
+  //Service to return information about sub matters
+  $items['get-sub-matters.json'] = array(
+    // The name of the function called when the path is accessed
+    'page callback' => 'get_sub_matters',
+    // Set this value to TRUE to allow access to any user
+    'access callback' => TRUE,
+    // Declare this as a simple registered path
+    'type' => MENU_CALLBACK,
+  );
+  //Service to return information about outcome pages
+  $items['get-outcome.json'] = array(
+    // The name of the function called when the path is accessed
+    'page callback' => 'get_outcome',
+    // Set this value to TRUE to allow access to any user
+    'access callback' => TRUE,
+    // Declare this as a simple registered path
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback.
+ */
+function matter_special_page() {
+    $matters = get_matters();
+    return array("matters" => $matters);
+}
+
+/**
+ *Get question - should be just 1
+ */
+function get_question($nid) {
+   $question = get_childrens($nid);
+   $answers = array();
+   foreach($question as $parent){
+     $answers = get_childrens($parent->nid);
+   }
+   $breadcrumbs = get_parent_information($nid);
+   return array('answers' => $answers, 'question' => $question,  'breadcrumbs' => $breadcrumbs);
+}
+
+/**
+ * Get childrens of an specific node of type: matter
+ */
+function get_childrens($nid) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'matter')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_parent', 'target_id', $nid, '=');
+    $result = $query->execute();
+    $matter_childrens = array();
+    if (isset($result['node'])) {
+      $matter_childrens_nids = array_keys($result['node']);
+      $matter_childrens = entity_load('node', $matter_childrens_nids);
+    }
+    return $matter_childrens;
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+ 
+function matter_theme_registry_alter(&$theme_registry) {
+	// Defined path to the current module.
+	$module_path = drupal_get_path('module', 'matter');
+	// Find all .tpl.php files in this module's folder recursively.
+	$template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+	// Iterate through all found template file objects.
+	foreach ($template_file_objects as $key => $template_file_object) {
+		// If the template has not already been overridden by a theme.
+		if (!isset($theme_registry[$key]['theme path']) || !preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+			// Alter the theme path and template elements.
+			$theme_registry[$key]['theme path'] = $module_path;
+			$theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+			$theme_registry[$key]['type'] = 'module';
+		}
+	}
+}
+
+/**
+ * Get all matter type
+ */
+function get_matters() {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('matter_type');
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  return $terms;
+}
+
+/**
+ * Get all the main matters
+ */
+function get_main_matters() {
+    $node_type = 'matter';
+    $main_matters = array();
+    $nids = db_query("SELECT nid FROM {node} n WHERE type = :type", 
+            array(':type' => $node_type))
+            ->fetchCol();
+    $content = '';
+    foreach($nids as $nid){
+      $node = node_load($nid);
+      //dpm($node);
+      if(!isset($node->field_parent['und'][0]['target_id'])){
+        $main_matters[] = array(
+                            'title' => $node->title,
+                            'nid' => $node->nid,
+                            'description' => $node->body
+                            );
+      }
+    }
+    return $main_matters;
+}
+
+/**
+ * Add all the necessaries CSS for our custom page
+ */
+function matter_get_css(){
+    $css = array();
+    $css[] = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+    $css[] = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css';
+    $css[] = '/' . drupal_get_path('module', 'matter') . '/css/datepicker/bootstrap-datepicker.css';
+    $css[] = '/' . drupal_get_path('module', 'matter') . '/css/modal.css';
+    $css[] = '/' . drupal_get_path('module', 'matter') . '/css/reset.css';
+    $css[] = '/' . drupal_get_path('module', 'matter') . '/css/styles.css';
+    return $css;
+}
+
+/**
+ * Add all the necessaries JS for our custom page
+ */
+function matter_get_js(){
+  $js = array();
+  $js[] = 'https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js';
+  $js[] = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js';
+  $js[] = 'https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js';
+  $js[] = '/' . drupal_get_path('module', 'matter') . '/js/bootstrap-datepicker.min.js';
+  $js[] = '/' . drupal_get_path('module', 'matter') . '/js/main.js';
+  return $js;
+}
+
+/**
+ * Out custom page without using default themes rendering
+ */
+function matter_page() {
+  
+}
+
+// Code taken from drupal_deliver_html_page().
+function matter_deliver($page_callback_result) {
+  global $language, $base_path;
+  // Pass variables to the template.
+  $vars = array(
+    'language' => $language->language,
+    'title' => 'Legal Aid Checker',
+    'favicon' => '',
+    'css' => matter_get_css(),
+    'js' => matter_get_js(),
+    'messages' => theme_status_messages(array('display' => NULL)),
+    'content' => drupal_render($page_callback_result),
+    'main_matters' => get_main_matters()
+  );
+  echo theme('matter_main', array('vars' => $vars)); // Uses template defined in hook_theme().
+}
+
+// Request out own theme - matter
+function matter_theme() {
+  $items['matter_main'] = array(
+    'template' => 'matter',
+    'render element' => 'page',
+  );
+  return $items;
+}
+
+/**
+ * Get sub matters from a specific nid
+ */
+function get_sub_matters(){
+  if(isset($_GET['nid']) || isset($_POST['nid'])){
+    extract($_REQUEST);
+    return drupal_json_output(get_question($nid));
+  }
+  return drupal_json_output('');
+}
+
+/**
+ * Get outcome basic information from nid
+ */
+function get_outcome_page($nid) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'outcome')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_parent', 'target_id', $nid, '=');
+    $result = $query->execute();
+    $matter_childrens = array();
+    if (isset($result['node'])) {
+      $matter_childrens_nids = array_keys($result['node']);
+      $matter_childrens = entity_load('node', $matter_childrens_nids);
+    }
+    return $matter_childrens;
+}
+
+/**
+ * Get outcome complementary information from nid
+ */
+function get_outcome(){
+  if(isset($_GET['nid']) || isset($_POST['nid'])){
+    extract($_REQUEST);
+    $outcome_page_obj = array_values(get_outcome_page($nid))[0]; //get the first element in the array - should be just one
+    if (isset($outcome_page_obj->field_useful_information['und'])){
+      $get_useful_information = get_useful_information($outcome_page_obj->field_useful_information['und']);
+      $outcome_page_obj->useful_information = $get_useful_information;
+    }
+    if (isset($outcome_page_obj->field_useful_information['und'])){
+      $get_office_information = get_office_information($outcome_page_obj->field_office['und']);
+      $outcome_page_obj->office_information = $get_office_information;
+    }
+    if(isset($outcome_page_obj->field_terminology['und'])) {
+      $terminology_information = get_terminology($outcome_page_obj->field_terminology['und']);
+      $outcome_page_obj->terminology_information = $terminology_information;
+    }
+    $outcome_page_obj->breadcrumbs = get_parent_information($nid);
+    return drupal_json_output($outcome_page_obj);
+  }
+  return drupal_json_output('');
+}
+
+
+/**
+ * Get useful information field from outcome pages
+ */
+function get_useful_information($items) {
+  $field_collection = array();
+  foreach($items as $item){
+    $field_collection[] = $item['value'];
+  }
+  $useful_information = array();
+  $field_collection_obj = entity_load('field_collection_item', $field_collection);
+  foreach($field_collection_obj as $key => $info){
+    $useful_information[] = array(
+                                'id' => $key,
+                                'title' => $info->field_title['und'][0]['value'],
+                                'description' => $info->field_description['und'][0]['value']
+                                );
+  }
+  return $useful_information;
+}
+
+/**
+ * Get office information field from outcome pages
+ */
+function get_office_information($items) {
+  $useful_information = array();
+  $offices_nid = array();
+  foreach($items as $item){
+    $offices_nid[] = $item['target_id'];
+  }
+  $office_collection = entity_load('node', $offices_nid);
+  foreach($office_collection as $key => $info){
+    $useful_information[] = array(
+                                'id' => $key,
+                                'title' => $info->title,
+                                'description' =>$info->body['und'][0]['value'],
+                                'street' =>$info->field_street['und'][0]['value'],
+                                'map' =>$info->field_map['und'][0]['value']
+                                );
+  }
+  return $useful_information;
+}
+
+/**
+ * Get Glossary from current module
+ */ 
+function get_terminology($terminology) {
+  $terminology_information = array();
+  foreach($terminology as $key => $value) {
+    $terminology_information[] = taxonomy_term_load($value['tid']);
+  }
+  return $terminology_information;
+}
+
+/**
+ * Implements hook_form_alter(&$form, &$form_state, $form_id).
+ */
+function matter_form_alter(&$form, &$form_state, $form_id) {
+  // Remove additional setting from custom matters
+  $types = array('office_directory', 'outcome', 'matter');
+  if (isset($form['nid']['#value']) && isset($form['type']['#value']) && (in_array($form['type']['#value'], $types)) ) {
+    //$form['additional_settings']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Return parents information for breadcrumbs Title and nid 
+ */
+function get_parent_information($nid) {
+  $parents_array = array();
+  get_all_parents($nid, $parents_array);
+  return $parents_array;
+}
+
+/**
+ * Get parent information for breadcrumbs Title and nid 
+ */
+function get_all_parents($nid, &$parents_array) {
+  
+  $node = node_load($nid);
+  $node_relevant_info = array(
+                              'nid'        => $node->nid,
+                              'title'      => $node->title,
+                              'parent_nid' => (isset($node->field_parent["und"][0]["target_id"]) ? 
+                                                $node->field_parent["und"][0]["target_id"] : ''),
+                              );
+  array_push($parents_array, $node_relevant_info);
+  
+  if(!empty($node->field_parent)) {
+    //echo $node->field_parent['und'][0]['target_id'];
+    return $node->field_parent['und'][0]['target_id'] . " - " . get_all_parents($node->field_parent['und'][0]['target_id'], $parents_array);
+  }
+}

@@ -8,12 +8,12 @@ function get_title() {
 
 function get_title_by_root_folder($url_path) {
     switch ($url_path) {
-       case 'crime_fines':
-          return "Crime and Fines";
+       case 'migration':
+          return "Migration";
           break;
        
-       case 'family':
-          return "Family";
+       case 'wills':
+          return "Wills & Estates";
           break;
        
        case 'home_neighborhood':
@@ -28,16 +28,16 @@ function get_title_by_root_folder($url_path) {
           return "Mental Health";
           break;
        
-       case 'money':
-          return "Money";
+       case 'personal_injury':
+          return "Personal Injury";
           break;
        
        case 'young_people':
           return "Young People and the Law";
           break;
           
-       case 'your_rights':
-          return "Your rights";
+       case 'housing':
+          return "Housing & Tenancy";
           break;
        case 'your_safety':
           return "Your Safety";

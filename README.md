@@ -29,6 +29,12 @@
 <p>Toby Verey, Senior Policy and Projects Officer</p>
  
 </form>
+
+<h2>Technical</h2>
+
+<p>UK Version was inspired by the gov.uk check legal aid site https://www.gov.uk/check-legal-aid</p>
+
+<p>Drupal Module is a module for Drupal 7</p>
 </div>
 
 <!--End mc_embed_signup-->
