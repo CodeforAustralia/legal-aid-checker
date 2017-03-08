@@ -116,7 +116,7 @@ function hide_outcome_page() {
 // Open by default accordion and left tabs
 function open_acordion() {
 	$(".tabs-left li:first a").click();
-	$("#accordion a:first").click();
+	//$("#accordion a:first").click();
 }
 
 // Reset breadcrumb
