@@ -38,7 +38,7 @@ function open_feedback() {
 		$(".content").attr("style", "padding-bottom: " + $(".bottom").height() + "px");
 	});
 	$('.feedback-open').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
             $(this).click();
         }
     });
@@ -52,7 +52,7 @@ function close_feedback() {
 		$(".content").attr("style", "padding-bottom: " + $(".bottom").height() + "px");
 	});
 	$('.feedback-close').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
             $(this).click();
         }
     });
@@ -72,7 +72,7 @@ function click_home() {
 	    push_state_window_history("");
 	});
 	$('.home-icon, .logo').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
 			$(this).click();
         }
     });
@@ -137,7 +137,7 @@ function click_accordion() {
 	});
 	
 	$('body').on('keypress', '.panel-heading', function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
 			$(this).click();
         }
     });
@@ -175,7 +175,7 @@ function update_from_breadcrumb() {
 	});
 	
 	$("body").on("keypress", ".breadcrum_element", function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
             $(this).click();
         }
     });
@@ -221,7 +221,7 @@ function select_answer(){
 	});
 	
 	$('#next').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
 			$(this).click();	
         }
     });
@@ -236,7 +236,7 @@ function choose_main_matter() {
 	});	
 	
 	$('.matter-item').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
 			$(this).click();
         }
     });
@@ -367,7 +367,7 @@ function send_feedback() {
 	});
 	
 	$('.feedback-btn').keypress(function(e){
-        if(e.which == 13 || e.which == 32){//Enter key pressed
+        if(e.which == 13){//Enter key pressed
 			$(this).click();
         }
     });
@@ -504,6 +504,11 @@ function on_print(){
 		setTimeout(function () {
 	        window.print();
 	    }, 1000);
-	})
+	});
+	
+	$('#print-page').keypress(function(e){
+        if(e.which == 13){//Enter key pressed
+			$(this).click();
+        }
+    });
 }
-
